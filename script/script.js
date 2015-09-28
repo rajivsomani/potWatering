@@ -4,7 +4,7 @@ $(function(){
 	 selectedIndex = -1, /*Index of the selected list item */
 	 autoId = parseInt(localStorage.getItem("autoId"), 10) || 0,
 	 milliSecInHour = 3600000,
-	 milliSecInMinute = 60000
+	 milliSecInMinute = 60000,
 	 editId = 0,
 	 _name = $("#name"), 
 	 _wateringPeriod = $("#wateringPeriod"),
@@ -92,11 +92,13 @@ function list(){
 			nowDate = new Date,
 			nowDateMilli = nowDate.getTime(),
 			remainingTime = (cli.timeToWater - nowDateMilli) / milliSecInMinute,
-			operationList = "<img src='svg/edit.svg' alt='edit"+i+"' class='btn-edit icon' title='Edit' />";
-		if(remainingTime > 0){
-			operationList += "<img src='svg/watering.svg' alt='water"+i+"' class='btn-water icon' title='Water It' />";
+			operationList = "";
+		if(remainingTime > 0 && remainingTime <= 40){
+			operationList += "<img src='svg/edit.svg' alt='edit"+i+"' class='btn-edit icon' title='Edit' /><img src='svg/watering.svg' alt='water"+i+"' class='btn-water icon' title='Water It' /><img src='svg/remove.svg' alt='remove' class='btn-remove-disable icon disable' title='Remove' />";
+		}else if(remainingTime < 0){
+			operationList += "<img src='svg/edit.svg' alt='edit' class='btn-edit-disable disable icon' title='Edit' /><img src='svg/watering.svg' alt='water' class='btn-water-disable icon disable' title='Water It' /> <img src='svg/remove.svg' alt='remove"+i+"' class='btn-remove icon' title='Remove' />";
 		}else{
-			operationList += "<img src='svg/remove.svg' alt='remove"+i+"' class='btn-remove icon' title='Remove' />";
+			operationList += "<img src='svg/edit.svg' alt='edit"+i+"' class='btn-edit icon' title='Edit' /><img src='svg/watering.svg' alt='water' class='btn-water-disable icon disable' title='Water It' /><img src='svg/remove.svg' alt='remove' class='btn-remove-disable icon disable' title='Remove' />";
 		}
 	  	_plantList.find("tbody").append("<tr>"+
 									 "	<td>"+operationList+"  </td>" +
@@ -192,12 +194,11 @@ function display(time, i) {
 	var elapsedMillis = +new Date,
 		timePlusMinus = "+";
 	elapsedMillis = (timeToWater >= elapsedMillis) ? (timeToWater - elapsedMillis) : (timePlusMinus = '-', elapsedMillis - timeToWater);
-    var decs = Math.floor(elapsedMillis%1000/100);
-    var secs = Math.floor(elapsedMillis%60000/1000);
-    var mins = Math.floor(elapsedMillis%3600000/60000);
-    var hours = Math.floor(elapsedMillis%(24*3600000)/3600000);
-	log(hours+":"+mins+":"+secs+"."+decs);
-    _plantList.find("tr").eq(i).find("td.time-to-water").text(timePlusMinus + " " +pad(hours)+":"+pad(mins)+":"+pad(secs)+"."+decs);
+    var secs = Math.floor(elapsedMillis%milliSecInMinute/1000);
+    var mins = Math.floor(elapsedMillis%milliSecInHour/milliSecInMinute);
+    var hours = Math.floor(elapsedMillis%(24*milliSecInHour)/milliSecInHour);
+	log(hours+":"+mins+":"+secs);
+    _plantList.find("tr").eq(i).find("td.time-to-water").text(timePlusMinus + " " +pad(hours)+":"+pad(mins)+":"+pad(secs));
   }
 }
 
