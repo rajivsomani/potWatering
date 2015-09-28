@@ -197,7 +197,6 @@ function display(time, i) {
     var secs = Math.floor(elapsedMillis%milliSecInMinute/1000);
     var mins = Math.floor(elapsedMillis%milliSecInHour/milliSecInMinute);
     var hours = Math.floor(elapsedMillis%(24*milliSecInHour)/milliSecInHour);
-	log(hours+":"+mins+":"+secs);
     _plantList.find("tr").eq(i).find("td.time-to-water").text(timePlusMinus + " " +pad(hours)+":"+pad(mins)+":"+pad(secs));
   }
 }
@@ -220,13 +219,12 @@ function notification(cli,remainingTime, remove){
 	if(! ('Notification' in window) ){
 				alert('Web Notification is not supported');
 			}	
-
+	
 	Notification.requestPermission(function(permission){
 		
-		var remainingTime = parseInt(remainingTime, 10),
-			title = (remove) ? "Please remove dead plant "+cli.name : "Please water "+cli.name,
-			body = (remove) ? "Please replace dead plant with new plant" : "Water it soon else plan will be dead in next "+remainingTime +" minutes";
-		var notification = new Notification(title ,{body: body});
+		var title = (remove) ? "Please remove dead plant "+cli.name : "Please water "+cli.name,
+			body = (remove) ? "Please replace dead plant with new plant" : "Water it soon else plan will be dead in next "+parseInt(remainingTime, 10) +" minutes";
+		var notification = new Notification(title ,{body: body, icon:"https://cdn.vectorstock.com/i/composite/77,06/watering-can-and-pot-vector-407706.jpg"});
 	});
 }
 }); 
