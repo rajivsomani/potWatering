@@ -31,12 +31,11 @@ function add(){
 		id    : autoId,
 		name  : _name.val(),
 		wateringPeriod : wateringPeriod,
-		timeToWater : dateInMilli+(milliSecInHour * wateringPeriod),
+		timeToWater : dateInMilli+(milliSecInHour * wateringPeriod)
 		
 	});
 	var currentLength = tbClients.push(client),
 		currentLength = currentLength-1;
-	console.log(currentLength);
 	run(tbClients[currentLength], currentLength);
 	localStorage.setItem("tbClients", JSON.stringify(tbClients));
 	alert("Plant added to garden.");
@@ -47,14 +46,18 @@ function add(){
 } 
 
 function edit(){
+	var date = new Date();
+	var dateInMilli = date.getTime(),
+		wateringPeriod = parseFloat(_wateringPeriod.val());
 	tbClients[selectedIndex] = JSON.stringify({
 			id    : editId,
 			name  : _name.val(),
-			wateringPeriod : _wateringPeriod.val()
-		});//Alter the selected item on the table
+			wateringPeriod : wateringPeriod,
+			timeToWater : dateInMilli+(milliSecInHour * wateringPeriod),
+		});/*Alter the selected plant on the table */
 	localStorage.setItem("tbClients", JSON.stringify(tbClients));
 	alert("Plant information updated.")
-	operation = "A"; //Return to default value
+	operation = "A"; /* Return to default value */
 	_plantInfo[0].reset();
 	list();
 	$('a.close-reveal-modal').trigger('click');
@@ -63,7 +66,6 @@ function edit(){
 
 function remove(){
 	tbClients.splice(selectedIndex, 1);
-	console.log(selectedIndex);
 	localStorage.setItem("tbClients", JSON.stringify(tbClients));
 	alert("Plant removed.");
 } 
@@ -96,9 +98,7 @@ function list(){
 		}else{
 			operationList += "<img src='svg/remove.svg' alt='remove"+i+"' class='btn-remove icon' title='Remove' />";
 		}
-		log(operationList);
 	  	_plantList.find("tbody").append("<tr>"+
-								 	 /*"	<td><img src='svg/edit.svg' alt='edit"+i+"' class='btn-edit icon'/><img src='svg/remove.svg' alt='remove"+i+"' class='btn-remove icon'/> <img src='svg/watering.svg' alt='watering"+i+"' class='btn-water icon'/>  </td>" + */
 									 "	<td>"+operationList+"  </td>" +
 									 "	<td>"+cli.id+"</td>" + 
 									 "	<td>"+cli.name+"</td>" + 
@@ -136,16 +136,31 @@ _plantList.on("click", ".btn-edit", function(){
 
 _plantList.on("click", ".btn-remove", function(){
 	selectedIndex = parseInt($(this).attr("alt").replace("remove", ""));
-	console.log(selectedIndex);
 	remove();
 	list();
 }); 
 
 _plantList.on("click", ".btn-water", function(){
-	selectedIndex = parseInt($(this).attr("alt").replace("remove", ""));
-	console.log(selectedIndex);
-	remove();
+	selectedIndex = parseInt($(this).attr("alt").replace("water", ""));
+	var cli = JSON.parse(tbClients[selectedIndex]);
+	alert(selectedIndex);
+	var date = new Date();
+	var dateInMilli = date.getTime();
+	var client = JSON.stringify({
+		id    : cli.id,
+		name  : cli.name,
+		wateringPeriod : cli.wateringPeriod,
+		timeToWater : dateInMilli+(milliSecInHour * cli.wateringPeriod),
+		
+	});
+	tbClients[selectedIndex] = client;
+	run(tbClients[selectedIndex], selectedIndex);
+	localStorage.setItem("tbClients", JSON.stringify(tbClients));
+	alert("Plant successfully watered.");
 	list();
+	return true;
+	
+	
 });
 
 
@@ -154,15 +169,9 @@ var timer;
 
 
 function run(cli,i) {
-  //localStorage["running"] = "true";
-  console.log(i);
-  /*if (!tbClients[i]["timeToWater"]) {
-    tbClients[i]["timeToWater"] = +new Date;
-  }*/
   var nowDate = new Date,
 	nowDateMilli = nowDate.getTime(),
 	remainingTime = (cli.timeToWater - nowDateMilli) / milliSecInMinute;
-	log(remainingTime);
   if(remainingTime <= 40 && remainingTime > 0){
 	  notification(cli,remainingTime, false);
   }
@@ -176,12 +185,10 @@ function run(cli,i) {
 }
 
 function display(time, i) {
-  //$("#toggle").innerHTML = localStorage["running"] ? "lap" : "start";
   var timeToWater = time;
   if (!timeToWater) {
-    $("#elapsed").innerHTML = "----";
+    _plantList.find("tr").eq(i).find("td.time-to-water").text("- - - -");;
   } else {
-    //var elapsedMillis = +new Date - parseInt(timeToWater);
 	var elapsedMillis = +new Date ;
 	elapsedMillis = timeToWater - elapsedMillis;
     var decs = Math.floor(elapsedMillis%1000/100);
@@ -213,8 +220,10 @@ function notification(cli,remainingTime, remove){
 			}	
 
 	Notification.requestPermission(function(permission){
-		var title = (remove) ? "Please remove dead plant "+cli.name : "Please water "+cli.name,
-			body = (remove) ? "Please replace dead plant with new plant" : "Water it soon else plan will be dead in next "+remainingTime +" minutes"
+		
+		var remainingTime = parseInt(remainingTime, 10),
+			title = (remove) ? "Please remove dead plant "+cli.name : "Please water "+cli.name,
+			body = (remove) ? "Please replace dead plant with new plant" : "Water it soon else plan will be dead in next "+remainingTime +" minutes";
 		var notification = new Notification(title ,{body: body});
 	});
 }
