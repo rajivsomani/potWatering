@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+	<script>
+		if(! ('Notification' in window) ){
+				alert('Web Notification is not supported');
+			}	
+
+			Notification.requestPermission(function(permission){
+				var notification = new Notification("Hi there!",{body:'I am here to talk about HTML5 Web Notification API'});
+			});
+		document.addEventListener('DOMContentLoaded',function(){
+		document.getElementById('notifyBtn').addEventListener('click',function(){
+
+			if(! ('Notification' in window) ){
+				alert('Web Notification is not supported');
+				return;
+			}	
+
+			Notification.requestPermission(function(permission){
+				var notification = new Notification("Hi there!",{body:'I am here to talk about HTML5 Web Notification API'});
+			});
+		});
+	});
+	</script>
+  </head>
+
+  <body>
+    <h1>Notification</h1>
+	<button id="notifyBtn">Show Me a Notification!</button>
+  </body>
+
+</html>
