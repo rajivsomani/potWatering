@@ -189,14 +189,15 @@ function display(time, i) {
   if (!timeToWater) {
     _plantList.find("tr").eq(i).find("td.time-to-water").text("- - - -");;
   } else {
-	var elapsedMillis = +new Date ;
-	elapsedMillis = timeToWater - elapsedMillis;
+	var elapsedMillis = +new Date,
+		timePlusMinus = "+";
+	elapsedMillis = (timeToWater >= elapsedMillis) ? (timeToWater - elapsedMillis) : (timePlusMinus = '-', elapsedMillis - timeToWater);
     var decs = Math.floor(elapsedMillis%1000/100);
     var secs = Math.floor(elapsedMillis%60000/1000);
     var mins = Math.floor(elapsedMillis%3600000/60000);
     var hours = Math.floor(elapsedMillis%(24*3600000)/3600000);
 	log(hours+":"+mins+":"+secs+"."+decs);
-    _plantList.find("tr").eq(i).find("td.time-to-water").text(pad(hours)+":"+pad(mins)+":"+pad(secs)+"."+decs);
+    _plantList.find("tr").eq(i).find("td.time-to-water").text(timePlusMinus + " " +pad(hours)+":"+pad(mins)+":"+pad(secs)+"."+decs);
   }
 }
 
