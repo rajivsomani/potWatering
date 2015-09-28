@@ -162,12 +162,13 @@ function run(cli,i) {
   var nowDate = new Date,
 	nowDateMilli = nowDate.getTime(),
 	remainingTime = (cli.timeToWater - nowDateMilli) / milliSecInMinute;
+	log(remainingTime);
   if(remainingTime <= 40 && remainingTime > 0){
-	  notification(cli,remainingTime);
+	  notification(cli,remainingTime, false);
   }
-  /*else if(remainingTime < 0){
-	  notification(cli,remainingTime, "remove");
-  }*/
+  else if(remainingTime < 0){
+	  notification(cli,remainingTime, true);
+  }
   display(cli.timeToWater,i);
   timer = setTimeout(function(){
 	  run(cli,i);
@@ -205,14 +206,16 @@ function log() {
   console.log.apply(console, arguments);
 }
 
-function notification(cli,remainingTime){
+function notification(cli,remainingTime, remove){
 	
 	if(! ('Notification' in window) ){
 				alert('Web Notification is not supported');
 			}	
 
 	Notification.requestPermission(function(permission){
-		var notification = new Notification("Please water "+cli.name ,{body:'Water it soon else plan will be dead in next '+remainingTime +" minutes"});
+		var title = (remove) ? "Please remove dead plant "+cli.name : "Please water "+cli.name,
+			body = (remove) ? "Please replace dead plant with new plant" : "Water it soon else plan will be dead in next "+remainingTime +" minutes"
+		var notification = new Notification(title ,{body: body});
 	});
 }
 }); 
