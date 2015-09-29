@@ -77,9 +77,9 @@ function list(){
 		"<thead>"+
 		"	<tr>"+
 		"	<th>Operations</th>"+
-		"	<th>ID</th>"+
+		"	<th class='hide-for-small'>ID</th>"+
 		"	<th>Name</th>"+
-		"	<th>Watering Period [in hours]</th>"+
+		"	<th class='hide-for-small'>Watering Period [in hours]</th>"+
 		"	<th>Water In Next[in hours]</th>"+
 		"	</tr>"+
 		"</thead>"+
@@ -102,9 +102,9 @@ function list(){
 		}
 	  	_plantList.find("tbody").append("<tr>"+
 									 "	<td>"+operationList+"  </td>" +
-									 "	<td>"+cli.id+"</td>" + 
+									 "	<td class='hide-for-small'>"+cli.id+"</td>" + 
 									 "	<td>"+cli.name+"</td>" + 
-									 "	<td>"+cli.wateringPeriod+"</td>" +
+									 "	<td class='hide-for-small'>"+cli.wateringPeriod+"</td>" +
 									 "	<td class='time-to-water'></td>" +
 	  								 "</tr>");
 		(function (cli, currentRow) {

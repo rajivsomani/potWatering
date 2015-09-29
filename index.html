@@ -3,6 +3,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="http://foundation.zurb.com/docs/assets/js/modernizr.js"></script>
 
   <link rel="stylesheet" href=" https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.0/css/foundation.min.css" />
@@ -16,7 +17,9 @@
     <div class="row">
       <h1 class="text-center">Flower Garden!</h1>
 
-      <a href="#" data-reveal-id="plantModal" class="add-plant button success">Add Plant</a>
+      <div class="button-container">
+		<a href="#" data-reveal-id="plantModal" class="add-plant button success">Add Plant</a>
+	  </div>
 
       <section id="plantModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
         <h2 id="modalTitle">Add your favourite plant .</h2>
@@ -38,7 +41,7 @@
             </div>
           </div>
           <div class="row">
-            <div class="large-12 columns">
+            <div class="large-12 columns button-container">
               <input type="submit" value="Save" id="btnSave" class="button success" aria-label="submit form"/>
             </div>
           </div>
@@ -51,7 +54,7 @@
 
 
 
-      <section class="row">
+      <section>
         <table id="plantList"> </table>
       </section>
 

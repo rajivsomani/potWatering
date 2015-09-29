@@ -1,4 +1,16 @@
 /* Styles go here */
 #plantList{width:100%;}
-.icon{height:48px; width:48px; padding-right:24px; cursor:pointer;}
+.icon{width:3rem; margin-right:1.5rem; cursor:pointer;}
 .icon.disable{opacity:0.4; cursor:default;}
+.icon:last-child{margin-right:0;}
+#plantList tbody tr td{text-transform:capitalize;}
+@media only screen and (min-width: 40.063em) and (max-width: 64em) { 
+	.container{width:90%; margin:0 auto;}
+}
+@media only screen and (max-width: 40em) { 
+	.container{width:90%; margin:0 auto;}
+	.icon{margin-right:0.5rem; width:2rem;}
+	#plantList tbody tr td:first-child{min-width:8.7rem;}
+	.button {width:100%;}
+    .button-container {text-align: center;}
+}
