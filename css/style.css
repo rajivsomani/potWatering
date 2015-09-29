@@ -1,4 +1,5 @@
 /* Styles go here */
+.plant-alert{display:none;}
 #plantList{width:100%;}
 .icon{width:3rem; margin-right:1.5rem; cursor:pointer;}
 .icon.disable{opacity:0.4; cursor:default;}

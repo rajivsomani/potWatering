@@ -10,6 +10,8 @@ $(function(){
 	 _wateringPeriod = $("#wateringPeriod"),
 	 _plantList = $("#plantList"),
 	 _plantInfo = $("#plantInfo"),
+	 _plantAlert = $(".plant-alert"),
+	 _plantAlertText = _plantAlert.find("span"),
 	 tbClients = localStorage.getItem("tbClients"); /*Retrieve the stored data */
 	tbClients = JSON.parse(tbClients); /*Converts string to object */
 	
@@ -38,13 +40,19 @@ function add(){
 		currentLength = currentLength-1;
 	run(tbClients[currentLength], currentLength);
 	localStorage.setItem("tbClients", JSON.stringify(tbClients));
-	alert("Plant added to garden.");
+	alertMessage("Plant added to garden.");
 	_plantInfo[0].reset();
 	list();
 	$('a.close-reveal-modal').trigger('click');
 	return true;
 } 
 
+function alertMessage(message){
+	_plantAlertText.text(message);
+	_plantAlert.toggle( "slow", function() {
+		setTimeout(function(){_plantAlert.toggle("slow");},1000);
+	});
+}
 function edit(){
 	var date = new Date();
 	var dateInMilli = date.getTime(),
@@ -56,7 +64,7 @@ function edit(){
 			timeToWater : dateInMilli+(milliSecInHour * wateringPeriod),
 		});/*Alter the selected plant on the table */
 	localStorage.setItem("tbClients", JSON.stringify(tbClients));
-	alert("Plant information updated.")
+	alertMessage("Plant information updated.")
 	operation = "A"; /* Return to default value */
 	_plantInfo[0].reset();
 	list();
@@ -67,7 +75,7 @@ function edit(){
 function remove(){
 	tbClients.splice(selectedIndex, 1);
 	localStorage.setItem("tbClients", JSON.stringify(tbClients));
-	alert("Plant removed.");
+	alertMessage("Plant removed.");
 } 
 
 
@@ -145,7 +153,6 @@ _plantList.on("click", ".btn-remove", function(){
 _plantList.on("click", ".btn-water", function(){
 	selectedIndex = parseInt($(this).attr("alt").replace("water", ""));
 	var cli = JSON.parse(tbClients[selectedIndex]);
-	alert(selectedIndex);
 	var date = new Date();
 	var dateInMilli = date.getTime();
 	var client = JSON.stringify({
@@ -158,7 +165,7 @@ _plantList.on("click", ".btn-water", function(){
 	tbClients[selectedIndex] = client;
 	run(tbClients[selectedIndex], selectedIndex);
 	localStorage.setItem("tbClients", JSON.stringify(tbClients));
-	alert("Plant successfully watered.");
+	alertMessage("Plant successfully watered.");
 	list();
 	return true;
 	
@@ -217,7 +224,7 @@ function log() {
 function notification(cli,remainingTime, remove){
 	
 	if(! ('Notification' in window) ){
-				alert('Web Notification is not supported');
+				alertMessage('Web Notification is not supported');
 			}	
 	
 	Notification.requestPermission(function(permission){
