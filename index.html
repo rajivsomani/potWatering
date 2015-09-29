@@ -14,18 +14,18 @@
 <body>
   <main class="container">
     <div class="row">
-      <h1>Flower Garden!</h1>
+      <h1 class="text-center">Flower Garden!</h1>
 
-      <a href="#" data-reveal-id="plantModal" class="add-plant button">Add Plant</a>
+      <a href="#" data-reveal-id="plantModal" class="add-plant button success">Add Plant</a>
 
-      <div id="plantModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+      <section id="plantModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
         <h2 id="modalTitle">Add your favourite plant .</h2>
         <form id="plantInfo">
 
           <div class="row">
             <div class="large-12 columns">
               <label>Name:
-                <input type="text" id="name" placeholder="name" />
+                <input type="text" id="name" placeholder="name" aria-label="name" required />
               </label>
             </div>
           </div>
@@ -33,19 +33,19 @@
           <div class="row">
             <div class="large-12 columns">
               <label>Watering Period [in hours]:
-                <input type="text" id="wateringPeriod" placeholder="Watering Period" />
+                <input type="number" id="wateringPeriod" placeholder="Watering Period"  aria-label="watering period" required />
               </label>
             </div>
           </div>
           <div class="row">
             <div class="large-12 columns">
-              <input type="submit" value="Save" id="btnSave" class="button" />
+              <input type="submit" value="Save" id="btnSave" class="button success" aria-label="submit form"/>
             </div>
           </div>
 
         </form>
         <a class="close-reveal-modal" aria-label="Close">&#215;</a>
-      </div>
+      </section>
 
 
 
