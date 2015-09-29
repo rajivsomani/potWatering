@@ -1,87 +1,133 @@
 $(function(){
 	$(document).foundation();
-	var operation = "A", /* "A"=adding; "E"=editing */
-	 selectedIndex = -1, /*Index of the selected list item */
-	 autoId = parseInt(localStorage.getItem("autoId"), 10) || 0,
-	 milliSecInHour = 3600000,
-	 milliSecInMinute = 60000,
-	 editId = 0,
-	 _name = $("#name"), 
-	 _wateringPeriod = $("#wateringPeriod"),
-	 _plantList = $("#plantList"),
-	 _plantInfo = $("#plantInfo"),
-	 _plantAlert = $(".plant-alert"),
-	 _plantAlertText = _plantAlert.find("span"),
-	 tbClients = localStorage.getItem("tbClients"); /*Retrieve the stored data */
-	tbClients = JSON.parse(tbClients); /*Converts string to object */
+	var app = app || {};
 	
+	
+	
+app.init = function(){
+	
+	app.data = app.data || {};
+	app.data.operation = "A", /* "A"=adding; "E"=editing */
+	 app.data.selectedIndex = -1, /*Index of the selected list item */
+	 app.data.autoId = parseInt(localStorage.getItem("autoId"), 10) || 0,
+	 app.data.milliSecInHour = 3600000,
+	 app.data.milliSecInMinute = 60000,
+	 app.data.editId = 0,
+	 app.data._name = $("#name"), 
+	 app.data._wateringPeriod = $("#wateringPeriod"),
+	 app.data._plantList = $("#plantList"),
+	 app.data._plantInfo = $("#plantInfo"),
+	 app.data._plantAlert = $(".plant-alert"),
+	 app.data._plantAlertText = app.data._plantAlert.find("span"),
+	 app.data.plantGarden = localStorage.getItem("plantGarden"); /*Retrieve the stored data */
+	app.data.plantGarden = JSON.parse(app.data.plantGarden); /*Converts string to object */
+	
+	if(app.data.plantGarden == null) /*If there is no data, initialize an empty array */
+		app.data.plantGarden = [];
+	else if(app.data.plantGarden.length > 0) /*If there is data, generate the list of same */
+		app.list();
+		
+app.data._plantInfo.submit(function(e){
+	e.preventDefault();
+	if(app.data.operation == "A")
+		return app.add();
+	else
+		return app.edit();
+}); 
 
-	if(tbClients == null) /*If there is no data, initialize an empty array */
-		tbClients = [];
-	else if(tbClients.length > 0) /*If there is data, generate the list of same */
-		list();
-	 	
+app.data._plantList.on("click", ".btn-edit", function(){
+	app.data.operation = "E";
+	app.data.selectedIndex = parseInt($(this).attr("alt").replace("edit", ""));
+	var cli = JSON.parse(app.data.plantGarden[app.data.selectedIndex]);
+	app.data._name.val(cli.name);
+	app.data._wateringPeriod.val(cli.wateringPeriod);
+	app.data._name.focus();
+	app.data.editId = cli.id;
+	$('a.add-plant').trigger('click');
+}); 
 
+app.data._plantList.on("click", ".btn-remove", function(){
+	app.data.selectedIndex = parseInt($(this).attr("alt").replace("remove", ""));
+	app.remove();
+	app.list();
+}); 
 
-function add(){
-	autoId += 1;
+app.data._plantList.on("click", ".btn-water", function(){
+	app.data.selectedIndex = parseInt($(this).attr("alt").replace("water", ""));
+	var cli = JSON.parse(app.data.plantGarden[app.data.selectedIndex]);
 	var date = new Date();
-	var dateInMilli = date.getTime(),
-		wateringPeriod = parseFloat(_wateringPeriod.val());
-	localStorage.setItem("autoId", autoId);
+	var dateInMilli = date.getTime();
 	var client = JSON.stringify({
-		id    : autoId,
-		name  : _name.val(),
-		wateringPeriod : wateringPeriod,
-		timeToWater : dateInMilli+(milliSecInHour * wateringPeriod)
+		id    : cli.id,
+		name  : cli.name,
+		wateringPeriod : cli.wateringPeriod,
+		timeToWater : dateInMilli+(app.data.milliSecInHour * cli.wateringPeriod),
 		
 	});
-	var currentLength = tbClients.push(client),
-		currentLength = currentLength-1;
-	run(tbClients[currentLength], currentLength);
-	localStorage.setItem("tbClients", JSON.stringify(tbClients));
-	alertMessage("Plant added to garden.");
-	_plantInfo[0].reset();
-	list();
-	$('a.close-reveal-modal').trigger('click');
+	app.data.plantGarden[app.data.selectedIndex] = client;
+	app.run(app.data.plantGarden[app.data.selectedIndex], app.data.selectedIndex);
+	localStorage.setItem("plantGarden", JSON.stringify(app.data.plantGarden));
+	app.alertMessage("Plant successfully watered.");
+	app.list();
 	return true;
-} 
+	
+	
+});
+};	
 
-function alertMessage(message){
-	_plantAlertText.text(message);
-	_plantAlert.toggle( "slow", function() {
-		setTimeout(function(){_plantAlert.toggle("slow");},1000);
-	});
-}
-function edit(){
+app.add = function(){
+	app.data.autoId += 1;
 	var date = new Date();
 	var dateInMilli = date.getTime(),
-		wateringPeriod = parseFloat(_wateringPeriod.val());
-	tbClients[selectedIndex] = JSON.stringify({
-			id    : editId,
-			name  : _name.val(),
-			wateringPeriod : wateringPeriod,
-			timeToWater : dateInMilli+(milliSecInHour * wateringPeriod),
-		});/*Alter the selected plant on the table */
-	localStorage.setItem("tbClients", JSON.stringify(tbClients));
-	alertMessage("Plant information updated.")
-	operation = "A"; /* Return to default value */
-	_plantInfo[0].reset();
-	list();
+		wateringPeriod = parseFloat(app.data._wateringPeriod.val());
+	localStorage.setItem("autoId", app.data.autoId);
+	var client = JSON.stringify({
+		id    : app.data.autoId,
+		name  : app.data._name.val(),
+		wateringPeriod : wateringPeriod,
+		timeToWater : dateInMilli+(app.data.milliSecInHour * wateringPeriod)
+		
+	});
+	var currentLength = app.data.plantGarden.push(client),
+		currentLength = currentLength-1;
+	app.run(app.data.plantGarden[currentLength], currentLength);
+	localStorage.setItem("plantGarden", JSON.stringify(app.data.plantGarden));
+	app.alertMessage("Plant added to garden.");
+	app.data._plantInfo[0].reset();
+	app.list();
 	$('a.close-reveal-modal').trigger('click');
 	return true;
-} 
+};
 
-function remove(){
-	tbClients.splice(selectedIndex, 1);
-	localStorage.setItem("tbClients", JSON.stringify(tbClients));
-	alertMessage("Plant removed.");
-} 
+app.edit = function(){
+	var date = new Date();
+	var dateInMilli = date.getTime(),
+		wateringPeriod = parseFloat(app.data._wateringPeriod.val());
+	app.data.plantGarden[app.data.selectedIndex] = JSON.stringify({
+			id    : app.data.editId,
+			name  : app.data._name.val(),
+			wateringPeriod : wateringPeriod,
+			timeToWater : dateInMilli+(app.data.milliSecInHour * wateringPeriod),
+		});/*Alter the selected plant on the table */
+	localStorage.setItem("plantGarden", JSON.stringify(app.data.plantGarden));
+	app.alertMessage("Plant information updated.")
+	app.data.operation = "A"; /* Return to default value */
+	app.data._plantInfo[0].reset();
+	app.list();
+	$('a.close-reveal-modal').trigger('click');
+	return true;
+};
+
+app.remove = function(){
+	app.data.plantGarden.splice(app.data.selectedIndex, 1);
+	localStorage.setItem("plantGarden", JSON.stringify(app.data.plantGarden));
+	app.alertMessage("Plant removed.");
+};
 
 
-function list(){
-	_plantList.html("");
-	_plantList.html(
+app.list = function(){
+	app.data._plantList.html("");
+	app.data._plantList.html(
 		"<thead>"+
 		"	<tr>"+
 		"	<th>Operations</th>"+
@@ -94,12 +140,12 @@ function list(){
 		"<tbody>"+
 		"</tbody>"
 		);
-	for(var i in tbClients){
-		var cli = JSON.parse(tbClients[i]),
+	for(var i in app.data.plantGarden){
+		var cli = JSON.parse(app.data.plantGarden[i]),
 			currentRow = parseInt(i,10)+1,
 			nowDate = new Date,
 			nowDateMilli = nowDate.getTime(),
-			remainingTime = (cli.timeToWater - nowDateMilli) / milliSecInMinute,
+			remainingTime = (cli.timeToWater - nowDateMilli) / app.data.milliSecInMinute,
 			operationList = "";
 		if(remainingTime > 0 && remainingTime <= 40){
 			operationList += "<img src='svg/edit.svg' alt='edit"+i+"' class='btn-edit icon' title='Edit' /><img src='svg/watering.svg' alt='water"+i+"' class='btn-water icon' title='Water It' /><img src='svg/remove.svg' alt='remove' class='btn-remove-disable icon disable' title='Remove' />";
@@ -108,7 +154,7 @@ function list(){
 		}else{
 			operationList += "<img src='svg/edit.svg' alt='edit"+i+"' class='btn-edit icon' title='Edit' /><img src='svg/watering.svg' alt='water' class='btn-water-disable icon disable' title='Water It' /><img src='svg/remove.svg' alt='remove' class='btn-remove-disable icon disable' title='Remove' />";
 		}
-	  	_plantList.find("tbody").append("<tr>"+
+	  	app.data._plantList.find("tbody").append("<tr>"+
 									 "	<td>"+operationList+"  </td>" +
 									 "	<td class='hide-for-small'>"+cli.id+"</td>" + 
 									 "	<td>"+cli.name+"</td>" + 
@@ -117,114 +163,65 @@ function list(){
 	  								 "</tr>");
 		(function (cli, currentRow) {
 			setTimeout(function(){
-			run(cli, currentRow);
+			app.run(cli, currentRow);
 		}, 200);
 		})(cli, currentRow);							 
 									 
 	}
-} 
+};
 
-
-_plantInfo.submit(function(e){
-	e.preventDefault();
-	if(operation == "A")
-		return add();
-	else
-		return edit();
-}); 
-
-_plantList.on("click", ".btn-edit", function(){
-	operation = "E";
-	selectedIndex = parseInt($(this).attr("alt").replace("edit", ""));
-	var cli = JSON.parse(tbClients[selectedIndex]);
-	_name.val(cli.name);
-	_wateringPeriod.val(cli.wateringPeriod);
-	_name.focus();
-	editId = cli.id;
-	$('a.add-plant').trigger('click');
-}); 
-
-_plantList.on("click", ".btn-remove", function(){
-	selectedIndex = parseInt($(this).attr("alt").replace("remove", ""));
-	remove();
-	list();
-}); 
-
-_plantList.on("click", ".btn-water", function(){
-	selectedIndex = parseInt($(this).attr("alt").replace("water", ""));
-	var cli = JSON.parse(tbClients[selectedIndex]);
-	var date = new Date();
-	var dateInMilli = date.getTime();
-	var client = JSON.stringify({
-		id    : cli.id,
-		name  : cli.name,
-		wateringPeriod : cli.wateringPeriod,
-		timeToWater : dateInMilli+(milliSecInHour * cli.wateringPeriod),
-		
+app.alertMessage = function(message){
+	app.data._plantAlertText.text(message);
+	app.data._plantAlert.toggle( "slow", function() {
+		setTimeout(function(){app.data._plantAlert.toggle("slow");},1000);
 	});
-	tbClients[selectedIndex] = client;
-	run(tbClients[selectedIndex], selectedIndex);
-	localStorage.setItem("tbClients", JSON.stringify(tbClients));
-	alertMessage("Plant successfully watered.");
-	list();
-	return true;
-	
-	
-});
+};
 
 
-
-var timer;
-
-
-function run(cli,i) {
+app.run = function(cli,i) {
   var nowDate = new Date,
 	nowDateMilli = nowDate.getTime(),
-	remainingTime = (cli.timeToWater - nowDateMilli) / milliSecInMinute;
+	remainingTime = (cli.timeToWater - nowDateMilli) / app.data.milliSecInMinute;
   if(remainingTime <= 40 && remainingTime > 0){
-	  notification(cli,remainingTime, false);
+	  app.notification(cli,remainingTime, false);
   }
   else if(remainingTime < 0){
-	  notification(cli,remainingTime, true);
+	  app.notification(cli,remainingTime, true);
   }
-  display(cli.timeToWater,i);
-  timer = setTimeout(function(){
-	  run(cli,i);
-  }, milliSecInMinute);
-}
+  app.display(cli.timeToWater,i);
+  setTimeout(function(){
+	  app.run(cli,i);
+  }, app.data.milliSecInMinute);
+};
 
-function display(time, i) {
+app.display = function(time, i) {
   var timeToWater = time;
   if (!timeToWater) {
-    _plantList.find("tr").eq(i).find("td.time-to-water").text("- - - -");;
+    app.data._plantList.find("tr").eq(i).find("td.time-to-water").text("- - - -");;
   } else {
 	var elapsedMillis = +new Date,
 		timePlusMinus = "+";
 	elapsedMillis = (timeToWater >= elapsedMillis) ? (timeToWater - elapsedMillis) : (timePlusMinus = '-', elapsedMillis - timeToWater);
-    var secs = Math.floor(elapsedMillis%milliSecInMinute/1000);
-    var mins = Math.floor(elapsedMillis%milliSecInHour/milliSecInMinute);
-    var hours = Math.floor(elapsedMillis%(24*milliSecInHour)/milliSecInHour);
-    _plantList.find("tr").eq(i).find("td.time-to-water").text(timePlusMinus + " " +pad(hours)+":"+pad(mins)+":"+pad(secs));
+    var secs = Math.floor(elapsedMillis%app.data.milliSecInMinute/1000);
+    var mins = Math.floor(elapsedMillis%app.data.milliSecInHour/app.data.milliSecInMinute);
+    var hours = Math.floor(elapsedMillis%(24*app.data.milliSecInHour)/app.data.milliSecInHour);
+    app.data._plantList.find("tr").eq(i).find("td.time-to-water").text(timePlusMinus + " " +app.pad(hours)+":"+app.pad(mins)+":"+app.pad(secs));
   }
-}
+};
 
-function stop() {
-  delete(localStorage["running"]);
-  clearTimeout(timer);
-}
 
-function pad(val) {
+app.pad = function(val) {
   return (""+val).length==2 ? ""+val : "0"+val;
 }
 
-function log() {
+app.log = function() {
   console.log.apply(console, arguments);
 }
 
-function notification(cli,remainingTime, remove){
+app.notification = function(cli,remainingTime, remove){
 	
 	if(! ('Notification' in window) ){
-				alertMessage('Web Notification is not supported');
+				app.alertMessage('Web Notification is not supported');
 			}	
 	
 	Notification.requestPermission(function(permission){
@@ -234,4 +231,5 @@ function notification(cli,remainingTime, remove){
 		var notification = new Notification(title ,{body: body, icon:"https://cdn.vectorstock.com/i/composite/77,06/watering-can-and-pot-vector-407706.jpg"});
 	});
 }
+app.init();
 }); 
